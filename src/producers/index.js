@@ -1,7 +1,3 @@
-const {
-    schemaValidator
-} = require('../validators');
-
 const kafkaProducer = require('./kafka');
 const apiProducer = require('./api');
 const rabbitmqProducer = require('./rabbitmq');
@@ -13,7 +9,7 @@ const _producers = {
     'rabbitmq': rabbitmqProducer,
 };
 
-module.exports = async (producers, schemas) => {
+module.exports = (schemaValidator) => async (producers, schemas) => {
     const channels = await Promise.all(producers.map(async ({
         name,
         config

@@ -2,19 +2,9 @@
 
 This is a library for producing events using different producers, such as Kafka and HTTP APIs.
 
-## Installation
-
-You can install this library using npm:
-
-```
-npm install awesome-data-stream
-```
-
 ## Usage
 
-### Configuration
-
-To use this library, you need to define a configuration object that describes your producers and their respective configurations. The configuration object should be an array of objects, where each object represents a producer and its configuration. The possible configurations are:
+### Producers
 
 #### Kafka Producer
 
@@ -35,38 +25,17 @@ To use this library, you need to define a configuration object that describes yo
 - `config`: An object containing the following field:
   - `url`: A string representing the URL of the HTTP API to produce messages to.
 
-### Example
+#### Example
 
 Here's an example of how to use the library to produce an event:
 
 ```javascript
-const producerFactory = require('my-event-producer-library');
+const { producerFactory } = require('./src/producers/')({
+  validate: () => {}
+});
 const producers = [/* Define your producers and their configurations here */];
 
-const producer = await producerFactory(producers, {
-  schemas: {
-    'test': {
-      'v1': {
-        'message': 'ushahusa',
-        'event_name': 'test',
-        'version': 'v1'
-      },
-      'v2': {
-        'message': '',
-        'event_name': '',
-        'version': '',
-        'chaps': ''
-      },
-      'v3': {
-        'message': '',
-        'event_name': '',
-        'version': '',
-        'timestamp': '',
-        'chaps': ''
-      }
-    }
-  }
-});
+const producer = await producerFactory(producers);
 
 producer.produce({
   'event_name': 'test',
@@ -86,6 +55,36 @@ Then, we create a producer instance by calling `producerFactory`, and call its `
 - `timestamp` (optional): A timestamp in milliseconds indicating when the event occurred.
 - Any additional fields defined in the event schema.
 
-## Contributing
+### Consumers
 
-If you find a bug or have a feature request, please open an issue on GitHub. Pull requests are also welcome.
+#### Kafka Consumer
+
+Este é um módulo Node.js que exporta uma função assíncrona que cria um consumidor do Kafka usando o pacote `kafkajs`.
+
+##### Configuração
+
+O consumidor do Kafka é configurado no arquivo `src/consumers/kafka.js`. É possível enviar as seguintes configurações:
+
+- `clientId`: o ID do cliente que está consumindo as mensagens
+- `brokers`: a lista de URLs dos brokers do Kafka
+- `ssl`: se deve usar SSL para se conectar ao Kafka (padrão: `false`)
+- `sasl`: as credenciais de autenticação no Kafka
+- `kafkaConsumerTopic`: o nome do tópico do Kafka que será consumido
+- `autoCommit`: se deve enviar automaticamente o ACK para as mensagens (padrão: `true`)
+- `readFromBeggining`: se deve começar a ler as mensagens a partir do início do tópico (padrão: `false`)
+- `offset`: o offset a partir do qual começar a ler as mensagens (padrão: `null`)
+
+##### Utilização
+
+Ao ser chamado, o módulo espera dois argumentos: um objeto com as configurações do consumidor (listadas acima, no tópico sobre configuração) e um grupo de consumidores (consumer group) opcional. O módulo então cria um consumidor do Kafka, se conecta à instância do Kafka e subscreve-se ao tópico especificado.
+
+O objeto retornado pelo módulo possui quatro métodos:
+
+- `run(callbackFunction)`: executa uma função de retorno de chamada para cada mensagem recebida. 
+- `disconnect()`: desconecta o consumidor do Kafka.
+- `connect()`: conecta o consumidor do Kafka.
+- `ack(messages)`: envia uma confirmação de recebimento (ACK) para as mensagens recebidas.
+
+O método `run()` é o principal método do objeto retornado. Ele executa uma função de retorno de chamada para cada mensagem recebida do Kafka. A função de retorno de chamada recebe um objeto com informações da mensagem, como o tópico, partição, mensagem, timestamp, etc. O método `ack()` é responsável por enviar o ACK para o Kafka, indicando que a mensagem foi recebida com sucesso.
+
+Este módulo é útil para quem precisa implementar um consumidor do Kafka em Node.js. Com ele, é possível criar rapidamente um consumidor do Kafka e se conectar à instância do Kafka para consumir mensagens de um tópico específico.

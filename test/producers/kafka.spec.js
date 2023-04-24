@@ -1,5 +1,5 @@
 const assert = require('assert');
-const producerFactory = require('../src/producers');
+const producerFactory = require('../../src/producers');
 require('dotenv').config()
 
 const producers = [{
