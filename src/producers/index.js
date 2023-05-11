@@ -1,7 +1,7 @@
 const kafkaProducer = require('./kafka');
 const apiProducer = require('./api');
 const rabbitmqProducer = require('./rabbitmq');
-
+const logger = require('../logger');
 
 const _producers = {
     'kafka': kafkaProducer,
@@ -28,15 +28,23 @@ module.exports = (schemaValidator) => async (producers, schemas) => {
             const isMessageValid = validator.validate(message)
 
             if (isMessageValid) {
-                const responses = channels.map(channel => {
-                    return channel.produce(message)
+                const responses = channels.map(async channel => {
+                    try {
+                        await channel.produce(message)
+                        logger.info('Awesome Data Streaming: Mensagem produzida com sucesso')
+                        return true
+                    } catch (error) {
+                        logger.error(`Awesome Data Streaming: Erro ao produzir mensagem: ${JSON.stringify(message)}`)
+                        return false
+                    }
                 });
 
                 return true;
             } else {
-                throw new Error('Message not valid! Double check the incoming properties and the schemas defined previously')
+                logger.error('Message not valid! Double check the incoming properties and the schemas defined previously');
             }
 
+            return;
         }
     }
 
