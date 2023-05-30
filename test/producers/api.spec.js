@@ -32,7 +32,6 @@ describe('Event Producer Library', function () {
                 'timestamp': Date.now()
             };
 
-            console.log('producer', producer)
             const result = await producer.produce(event);
 
             assert.equal(result, true);
